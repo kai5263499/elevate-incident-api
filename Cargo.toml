@@ -1,0 +1,39 @@
+[package]
+name = "elevate-incident-api"
+version = "0.1.0"
+authors = ["Wes Widner <wes@manwe.io>"]
+edition = "2018"
+
+[lib]
+name = "incident"
+path = "src/lib.rs"
+
+[[bin]]
+name = "incident_json_processor"
+path = "src/bin/cli/main.rs"
+
+[[bin]]
+name = "incident_api_server"
+path = "src/bin/api/main.rs"
+
+[[bin]]
+name = "incident_retriever"
+path = "src/bin/get-data/main.rs"
+
+[dependencies]
+actix-rt = "2.2.0"
+actix-web = "4.0.0-beta"
+base64 = "0.13.0"
+chrono = { version = "0.4.19" }
+enum-utils = "0.1.2"
+env_logger = "0.9.0"
+futures = "0.3.16"
+itertools = "0.10.1"
+log = "0.4.14"
+ordered-float = "2.7.0"
+reqwest = "0.11.4"
+serde = { version = "1.0.127", features = ["derive"] }
+serde_json = { version = "1.0.66" }
+serde_with = { version = "1.9.4" }
+tokio = { version = "1.10.0", features = ["full"] }
+ureq = "2.1.1"
