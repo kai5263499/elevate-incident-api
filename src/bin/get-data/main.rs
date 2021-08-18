@@ -18,7 +18,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let endpoints: Vec<&str> = vec!["identities", "denial", "intrusion", "executable", "misuse", "unauthorized", "probing", "other"];
 
-    let mut tasks: Vec<JoinHandle<Result<(), ureq::Error>>>= vec![];
+    let mut tasks: Vec<JoinHandle<Result<(), reqwest::Error>>>= vec![];
 
     for endpoint in endpoints {
         tasks.push(task::spawn(process_endpoint(&endpoint)));
@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 async fn process_endpoint(
     endpoint: &str
-) -> Result<(), ureq::Error> {
+) -> Result<(), reqwest::Error> {
     let url = match endpoint {
         "identities" => format!("https://incident-api.use1stag.elevatesecurity.io/{}/", &endpoint),
         _ => format!("https://incident-api.use1stag.elevatesecurity.io/incidents/{}/", &endpoint)
@@ -42,12 +42,26 @@ async fn process_endpoint(
     
     let username = env::var("HTTP_USERNAME").unwrap();
     let password = env::var("HTTP_PASSWORD").unwrap();
-    let encoded_credentials = format!("Basic {}", base64::encode(format!("{}:{}", username, password)));
     
-    let body: String = ureq::get(&url)
-        .set("Authorization", &encoded_credentials)
-        .call()?
-        .into_string()?;
+    let client = reqwest::Client::new();
+    let body = client.get(url)
+        .basic_auth(username, Some(&password))
+        .send()
+        .await?
+        .text()
+        .await?;
+  
+    debug!("returning {} bytes from {}", body.len(), endpoint);
+
+    save_endpoint_data(body, endpoint).await.unwrap();
+
+    Ok(())
+}
+
+async fn save_endpoint_data(
+    body: String,
+    endpoint: &str
+) -> Result<(), std::io::Error> {
     let filename = format!("data/{}.json", endpoint);
     let mut output_file = File::create(&filename)?;
     match write!(output_file, "{}", body) {
@@ -56,5 +70,6 @@ async fn process_endpoint(
     }
 
     info!("writing {} bytes to {}", body.len(), &filename);            
+
     Ok(())
 }

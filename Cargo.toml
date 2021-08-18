@@ -21,7 +21,6 @@ name = "incident_retriever"
 path = "src/bin/get-data/main.rs"
 
 [dependencies]
-actix-rt = "2.2.0"
 actix-web = "4.0.0-beta"
 base64 = "0.13.0"
 chrono = { version = "0.4.19" }
@@ -36,4 +35,3 @@ serde = { version = "1.0.127", features = ["derive"] }
 serde_json = { version = "1.0.66" }
 serde_with = { version = "1.9.4" }
 tokio = { version = "1.10.0", features = ["full"] }
-ureq = "2.1.1"
